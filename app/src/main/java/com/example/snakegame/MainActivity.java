@@ -358,23 +358,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 snakePointsList.get(0).getPositionX() >= surfaceView.getWidth() ||
                 snakePointsList.get(0).getPositionY() >= surfaceView.getHeight())
         {
-
             gameOver = true;
         }
-        else {
-
-            // check if snake's head touches snake itself
-            for (int i = 1; i < snakePointsList.size(); i++) {
-
-                if (headPositionX == snakePointsList.get(i).getPositionX() &&
-                    headPositionY == snakePointsList.get(i).getPositionY()) {
-
-                    gameOver = true;
-                    break;
-                }
-            }
-        }
-
         return gameOver;
     }
 
