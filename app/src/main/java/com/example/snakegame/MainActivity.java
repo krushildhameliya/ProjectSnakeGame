@@ -353,10 +353,11 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         boolean gameOver = false;
 
         // check if snake's head touches edges
-        if (snakePointsList.get(0). getPositionX() < 0 ||
-            snakePointsList.get(0). getPositionY() < 0 ||
-                snakePointsList.get(0). getPositionX() >= surfaceView.getWidth() ||
-                snakePointsList.get(0). getPositionY() >= surfaceView.getHeight()) {
+        if (snakePointsList.get(0).getPositionX() == 0 ||
+            snakePointsList.get(0).getPositionY() == 0 ||
+                snakePointsList.get(0).getPositionX() >= surfaceView.getWidth() ||
+                snakePointsList.get(0).getPositionY() >= surfaceView.getHeight())
+        {
 
             gameOver = true;
         }
