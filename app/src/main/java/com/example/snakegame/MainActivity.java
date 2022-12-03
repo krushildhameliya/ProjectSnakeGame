@@ -1,10 +1,11 @@
 package com.example.snakegame;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
 
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -14,10 +15,9 @@ import android.os.Bundle;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -42,8 +42,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private int score = 0;
 
     // snake size / point size
-    // you can change this value to make bigger size snake
-    private static final int pointSize = 28;
+    private static final int pointSize = 20;
 
     // default snake tale
     private static final int defaultTalePoints = 3;
@@ -51,11 +50,11 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     // snake color
     private static final int snakeColor = Color.YELLOW;
 
-    // snake moving speed. value must lie between 1 - 1000
-    private static final int snakeMovingSpeed = 800;
+    // snake moving speed. value must be lie between 1 - 1000
+    private static final int snakeMovingSpeed = 750;
 
     // random point position cordinates on the surfaceView
-    private int positionX, positionY;
+    private int positionX = 0, positionY = 0;
 
     // timer to move snake / change snake position after a specific time (snakeMovingSpeed)
     private Timer timer;
@@ -126,8 +125,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 }
             }
         });
-
-
     }
 
     @Override
@@ -156,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         // clear Snake Points / snake length
         snakePointsList.clear();
 
-        //  set default score as 0
+        // set default score as 0
         scoreTV.setText("0");
 
         // make score 0
@@ -165,19 +162,18 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         // setting default moving position
         movingPosition = "right";
 
-        // default snake starting position
-        int startpostionX = (pointSize) * defaultTalePoints;
+        // default snake starting position on the screen
+        int startPositionX = (pointSize) * defaultTalePoints;
 
         // making snake's default length / points
         for (int i = 0; i < defaultTalePoints; i++){
 
             // adding points to snake's tale
-            int startPositionX = 0;
             SnakePoints snakePoints = new SnakePoints(startPositionX, pointSize);
             snakePointsList.add(snakePoints);
 
             // increasing value for next point as snake's tale
-            startpostionX = startpostionX - (pointSize * 2);
+            startPositionX = startPositionX - (pointSize * 2);
         }
 
         // add random point on the screen to be eaten by the snake
@@ -235,32 +231,26 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 switch (movingPosition){
                     case "right":
 
-                        // move snake's head to right.
-                        // other points follow snake's head point to move the snake
+                        // move snake's head to right; other points follow snake's head point to move the snake
                         snakePointsList.get(0).setPositionX(headPositionX + (pointSize * 2));
                         snakePointsList.get(0).setPositionY(headPositionY);
                         break;
 
                     case "left":
-
-                        // move snake's head to left.
-                        // other points follow snake's head point to move the snake
+                        // move snake's head to left.; other points follow snake's head point to move the snake
                         snakePointsList.get(0).setPositionX(headPositionX - (pointSize * 2));
                         snakePointsList.get(0).setPositionY(headPositionY);
                         break;
 
                     case "top":
-
-                        // move snake's head to top.
-                        // other points follow snake's head point to move the snake
+                        // move snake's head to top; other points follow snake's head point to move the snake
                         snakePointsList.get(0).setPositionX(headPositionX);
                         snakePointsList.get(0).setPositionY(headPositionY - (pointSize * 2));
                         break;
 
-                    case "bottom":
 
-                        // move snake's head to bottom.
-                        // other points follow snake's head point to move the snake
+                    case "bottom":
+                        // move snake's head to bottom; other points follow snake's head point to move the snake
                         snakePointsList.get(0).setPositionX(headPositionX);
                         snakePointsList.get(0).setPositionY(headPositionY + (pointSize * 2));
                         break;
@@ -272,47 +262,51 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                     // stop timer / stop moving snake
                     timer.purge();
                     timer.cancel();
-                    //show game over dialog
+
+                    // show game over dialog
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setMessage("Your Score = " + score);
+                    builder.setMessage("Your Score = "+score);
                     builder.setTitle("Game Over");
                     builder.setCancelable(false);
-                    builder.setPositiveButton("Start Again", new DialogInterface.OnClickListener(){
+                    builder.setPositiveButton("Start Again", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialogInterface, int i){
+                        public void onClick(DialogInterface dialogInterface, int i) {
 
-                            //restart game / re-init data
+                            // restart game / re-init data
                             init();
                         }
                     });
-                    // timer runs in background so we need to show dialog in main thread
+
+                    // timer runs in background so we need to show dialog on main thread
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                        builder.show();
+                            builder.show();
                         }
                     });
                 }
+
                 else{
+
                     // lock canvas on surfaceHolder to draw on it
                     canvas = surfaceHolder.lockCanvas();
 
-                    //clear canvas with White Color
+                    // clear canvas with white color
                     canvas.drawColor(Color.WHITE, PorterDuff.Mode.CLEAR);
 
                     // change snake's head position. other snake points will follow snake's head
-                    canvas.drawCircle(snakePointsList.get(0).getPositionX(),snakePointsList.get(0).getPositionY(),pointSize, createPointColor());
+                    canvas.drawCircle(snakePointsList.get(0).getPositionX(), snakePointsList.get(0).getPositionY(), pointSize, createPointColor());
 
                     // draw random point circle on the surface to be eaten by the snake
                     canvas.drawCircle(positionX, positionY, pointSize, createPointColor());
 
                     // other points is following snake's head. position 0 is head of snake
-                    for (int i = 1; i < snakePointsList.size(); i++) {
+                    for(int i = 1; i < snakePointsList.size(); i++){
 
                         int getTempPositionX = snakePointsList.get(i).getPositionX();
                         int getTempPositionY = snakePointsList.get(i).getPositionY();
 
-                        // move point accross the head
+                        // move points accross the head
                         snakePointsList.get(i).setPositionX(headPositionX);
                         snakePointsList.get(i).setPositionY(headPositionY);
                         canvas.drawCircle(snakePointsList.get(i).getPositionX(), snakePointsList.get(i).getPositionY(), pointSize, createPointColor());
@@ -353,13 +347,28 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         boolean gameOver = false;
 
         // check if snake's head touches edges
-        if (snakePointsList.get(0).getPositionX() == 0 ||
-            snakePointsList.get(0).getPositionY() == 0 ||
+        if(snakePointsList.get(0).getPositionX() < 0 ||
+                snakePointsList.get(0).getPositionY() < 0 ||
                 snakePointsList.get(0).getPositionX() >= surfaceView.getWidth() ||
                 snakePointsList.get(0).getPositionY() >= surfaceView.getHeight())
         {
+
             gameOver = true;
         }
+        else{
+
+            // check if snake's head touches snake itself
+            for(int i = 1; i < snakePointsList.size(); i++){
+
+                if(headPositionX == snakePointsList.get(i).getPositionX() &&
+                        headPositionY == snakePointsList.get(i).getPositionY()){
+                    gameOver = true;
+                    break;
+                }
+
+            }
+        }
+
         return gameOver;
     }
 
@@ -371,11 +380,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             pointColor.setColor(snakeColor);
             pointColor.setStyle(Paint.Style.FILL);
             pointColor.setAntiAlias(true); // smoothness
-
-            return pointColor;
         }
 
         return pointColor;
     }
-
 }
